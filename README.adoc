@@ -1,0 +1,103 @@
+
+= Spring Boot Backend secured with Firebase in Kotlin
+
+== The story
+
+I was working on a mobile application and I needed to make a lightweight backend to provide some functionality and store data.
+
+I wanted a quick solution, so I chose a technology I've already used: Spring Boot, but I wanted to follow best practices as much as possible.
+
+The first issue that was essential was authentication and security. I'm not an expert in this domain but like all developers I know that the pattern that is the reference is the Oauth2. Moreover, from a user experience point of view, I find it very nice to log in with your Google account. It's kind of the "all-inclusive" solution.
+
+So I chose Firebase to entrust the mission of authenticating my users. It does the job and I am serene about security and evolutivity.
+It was also an opportunity to play with Firebase Cloud Firestore to store data.
+
+On this repo, I made the bases of a backend with the following elements:
+
+* link:https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html[Spring Webflux]
+* link:https://firebase.google.com/docs/auth/admin/verify-id-tokens[Firebase Admin]
+* link:https://spring.io/projects/spring-cloud-gcp[Spring Cloud GCP]
+* link:https://cloud.spring.io/spring-cloud-static/spring-cloud-gcp/1.2.0.RC1/reference/html/#spring-data-reactive-repositories-for-cloud-firestore[Spring Data Cloud Firestore]
+
+== Content of project
+The goal is to provide a route to validate a user authenticated on a mobile application.
+I added the notion of member, a model stored in a database that will allow me to easily manage the role of each user and later possibly other information.
+
+So I'm going to create the following entry point :
+
+----
+GET /me
+----
+
+The client app have to put the grant type and the bearer token in the headers.
+So the backend will proceed of the validation of the authentication and return the corresponding member object.
+
+----
+{
+    "tokenUid": "--Unique--ID--",
+    "name": "John Doe",
+    "role": "MEMBER"
+}
+----
+
+== Anatomy of project
+Here is a short description of the different classes.
+
+=== Configuration
+
+* link:src/main/kotlin/fr/gwa/seed/config/WebFluxConfig.kt[WebFluxConfigurer] : is the manifest of the entries points.
+
+* link:src/main/kotlin/fr/gwa/seed/config/SecurityConfig.kt[SecurityConfig] : init firebase SDK and define security strategy of different entries points
+
+=== Model and Database
+
+* link:src/main/kotlin/fr/gwa/seed/model/Member.kt[Member] : my basic model.
+
+* link:src/main/kotlin/fr/gwa/seed/db/MemberRepository.kt[MemberRepository] : very impressive, this interface is enough to access the database, the library does all the work.
+
+=== Security
+
+* link:src/main/kotlin/fr/gwa/seed/security/AuthenticationToken.kt[AuthenticationToken] : a wrapper around token object to add grant type information.
+
+* link:src/main/kotlin/fr/gwa/seed/security/SecurityContextRepository.kt[SecurityContextRepository] : parsing of request header to extract bearer token.
+
+* link:src/main/kotlin/fr/gwa/seed/security/AuthenticationManager.kt[AuthenticationManager] : processing authentication.
+
+=== Services
+A classic implementation of a service.
+
+* link:src/main/kotlin/fr/gwa/seed/handlers/MemberHandler.kt[MemberHandler]
+
+* link:src/main/kotlin/fr/gwa/seed/services/impl/MemberServiceImpl.kt[MemberService]
+
+== What's next ?
+From this beginning, it is possible to work on the following points:
+
+* Managing multiple grant types (Facebook, twiter, ...)
+* Make this base compatible with a micro-services architecture
+* More services
+
+== Reference Documentation
+For further reference, please consider the following links:
+
+* link:https://github.com/spring-cloud/spring-cloud-gcp/tree/master/spring-cloud-gcp-samples/spring-cloud-gcp-data-firestore-sample[Spring Data Cloud Firestore Sample]
+
+== License
+----
+Copyright 2020 Grégory Waeles
+
+Licensed to the Apache Software Foundation (ASF) under one or more contributor
+license agreements.  See the NOTICE file distributed with this work for
+additional information regarding copyright ownership.  The ASF licenses this
+file to you under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License.  You may obtain a copy of
+the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+License for the specific language governing permissions and limitations under
+the License.
+----
