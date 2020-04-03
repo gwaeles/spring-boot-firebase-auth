@@ -25,6 +25,10 @@ class MemberServiceImpl : MemberService {
                 .defaultIfEmpty(Member(tokenUid = token))
     }
 
+    /**
+     * Return the member object of the current authenticated user
+     * Create it if not exist
+     */
     override fun findByFirebaseToken(token: FirebaseToken): Mono<Member> {
         return Mono.zip(Mono.just(token), findByToken(token.uid))
                 .flatMap { tuple ->

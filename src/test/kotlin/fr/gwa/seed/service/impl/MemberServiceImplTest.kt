@@ -25,8 +25,6 @@ class MemberServiceImplTest {
     @InjectMockKs
     lateinit var service: MemberServiceImpl
 
-    private val spyService by lazy { spyk(service) }
-
     init {
         MockKAnnotations.init(this)
     }
@@ -83,7 +81,6 @@ class MemberServiceImplTest {
         //GIVEN
         val uid = "A"
         val name = "Andrea"
-        val role = "MEMBER"
         val slot = slot<Member>()
 
         every { fireBaseToken.uid } returns uid

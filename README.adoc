@@ -26,7 +26,7 @@ I added the notion of member, a model stored in a database that will allow me to
 So I'm going to create the following entry point :
 
 ----
-GET /me
+GET /members/me
 ----
 
 The client app have to put the grant type and the bearer token in the headers.
@@ -45,29 +45,23 @@ Here is a short description of the different classes.
 
 === Configuration
 
-* link:src/main/kotlin/fr/gwa/seed/config/WebFluxConfig.kt[WebFluxConfigurer] : is the manifest of the entries points.
-
-* link:src/main/kotlin/fr/gwa/seed/config/SecurityConfig.kt[SecurityConfig] : init firebase SDK and define security strategy of different entries points
+* link:src/main/kotlin/fr/gwa/seed/config/ApplicationConfig.kt[ApplicationConfig] : init firebase SDK and define security strategy of different entries points
 
 === Model and Database
 
 * link:src/main/kotlin/fr/gwa/seed/model/Member.kt[Member] : my basic model.
-
 * link:src/main/kotlin/fr/gwa/seed/db/MemberRepository.kt[MemberRepository] : very impressive, this interface is enough to access the database, the library does all the work.
 
 === Security
 
 * link:src/main/kotlin/fr/gwa/seed/security/AuthenticationToken.kt[AuthenticationToken] : a wrapper around token object to add grant type information.
-
 * link:src/main/kotlin/fr/gwa/seed/security/SecurityContextRepository.kt[SecurityContextRepository] : parsing of request header to extract bearer token.
-
 * link:src/main/kotlin/fr/gwa/seed/security/AuthenticationManager.kt[AuthenticationManager] : processing authentication.
 
 === Services
 A classic implementation of a service.
 
-* link:src/main/kotlin/fr/gwa/seed/handlers/MemberHandler.kt[MemberHandler]
-
+* link:src/main/kotlin/fr/gwa/seed/controllers/MemberController.kt[MemberController]
 * link:src/main/kotlin/fr/gwa/seed/services/impl/MemberServiceImpl.kt[MemberService]
 
 == What's next ?
@@ -76,11 +70,13 @@ From this beginning, it is possible to work on the following points:
 * Managing multiple grant types (Facebook, twiter, ...)
 * Make this base compatible with a micro-services architecture
 * More services
+* link:https://www.alexecollins.com/spring-boot-performance/[Increase performance]
 
 == Reference Documentation
 For further reference, please consider the following links:
 
 * link:https://github.com/spring-cloud/spring-cloud-gcp/tree/master/spring-cloud-gcp-samples/spring-cloud-gcp-data-firestore-sample[Spring Data Cloud Firestore Sample]
+* link:https://github.com/springdoc/springdoc-openapi[OpenAPI 3]
 
 == License
 ----

@@ -7,7 +7,9 @@ import fr.gwa.seed.security.AuthenticationManager
 import fr.gwa.seed.security.Role
 import fr.gwa.seed.security.SecurityContextRepository
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpMethod
@@ -18,58 +20,35 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.web.reactive.config.EnableWebFlux
+import org.springframework.web.reactive.config.WebFluxConfigurer
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
 import java.io.IOException
-import java.util.*
+
 
 /**
  * @author Gwa
  */
+@Configuration
+@EnableWebFlux
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
-class SecurityConfig {
+class ApplicationConfig: WebFluxConfigurer {
+
+    @Value("\${firebase.databaseUrl}")
+    lateinit var databaseUrl: String
+
+    @Value("\${firebase.credentialsPath}")
+    lateinit var credentialsPath: String
+
+    // --- Security --- //
 
     @Autowired
-    private val authenticationManager: AuthenticationManager? = null
+    lateinit var authenticationManager: AuthenticationManager
 
     @Autowired
-    private val securityContextRepository: SecurityContextRepository? = null
-
-    val properties: Properties by lazy {
-        Properties().apply {
-            load(ClassPathResource("/application.properties").inputStream)
-        }
-    }
-
-    /**
-     * Init firebase SDK with credentials and database informations
-     */
-    @Primary
-    @Bean
-    @Throws(IOException::class)
-    fun firebaseInit() {
-
-        if (FirebaseApp.getApps().isEmpty()) {
-            println("[GWA] Init Firebase App ...")
-
-            val databaseUrl = properties.getProperty("firebase.databaseUrl")
-            var credentialsPath = properties.getProperty("spring.cloud.gcp.firestore.credentials.location")
-
-            if (credentialsPath.startsWith("classpath:")) {
-                credentialsPath = credentialsPath.substring(10)
-            }
-
-            val options = FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials
-                            .fromStream(ClassPathResource(credentialsPath).inputStream))
-                    .setDatabaseUrl(databaseUrl)
-                    .build()
-
-            FirebaseApp.initializeApp(options)
-            println("[GWA] Firebase App initialized")
-        }
-    }
+    lateinit var securityContextRepository: SecurityContextRepository
 
     /**
      * Define security strategy of different entries points
@@ -86,9 +65,37 @@ class SecurityConfig {
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                .pathMatchers("/").permitAll()
                 .pathMatchers("/auth").hasAnyRole(Role.ADMIN.name)
                 .anyExchange().authenticated()
                 .and().build()
     }
+
+    // --- End Security --- //
+
+    // --- Firebase --- //
+
+    /**
+     * Init firebase SDK with credentials and database informations
+     */
+    @Primary
+    @Bean
+    @Throws(IOException::class)
+    fun firebaseInit() {
+
+        if (FirebaseApp.getApps().isEmpty()) {
+            println("[GWA] Init Firebase App ...")
+
+            val options = FirebaseOptions.Builder()
+                    .setCredentials(GoogleCredentials
+                            .fromStream(ClassPathResource(credentialsPath).inputStream))
+                    .setDatabaseUrl(databaseUrl)
+                    .build()
+
+            FirebaseApp.initializeApp(options)
+            println("[GWA] Firebase App initialized")
+        }
+    }
+
+    // --- End Firebase --- //
+
 }

@@ -1,0 +1,18 @@
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    path: "/api/swagger-ui.html"
+
+firebase:
+  databaseUrl: "[project-id].firebaseio.com"
+  credentialsPath: "/firebase/service-token.json"
+
+spring:
+  cloud:
+    gcp:
+      firestore:
+        credentials:
+          location: "classpath:/firebase/service-token.json"
+        project-id: "[project-id]"
